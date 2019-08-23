@@ -15,9 +15,9 @@ public class Lexer {
         Scanner scanner = new Scanner(new File(args[0]));
         String[] lines = createListOfTokens(scanner);
 
-        Stack<String> blocks = new Stack<>();
+        boolean isComment = false;
 
-        String special_symbol = "(\\/\\*)|(\\*\\/)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(<=)|(>=)|(\\>)|(==)|(!=)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
+        String special_symbol = "(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(<=)|(>=)|(\\>)|(==)|(!=)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
         String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
         String ID = "[a-zA-Z]+";
         String NUM = "[\\d]+";
@@ -39,23 +39,23 @@ public class Lexer {
 
             for (int i = 0; i < line.length() - 2; i++) {
 
-                if (line.charAt(i) == '/' && line.charAt(i + 1) == '*') {
-                    blocks.push("/*");
+                if (line.charAt(i) == '/' && line.charAt(i+1) == '*') {
+                    isComment = true;
                     i = i + 2;
-                } else if (!blocks.isEmpty() && line.charAt(i) != '/' && (line.charAt(i + 1) == '*' && line.charAt(i + 2) == '/')) {
-                    blocks.pop();
+                } else if ( line.charAt(i) == '*' && line.charAt(i+1) == '/' && line.charAt(i+2) != '*' ) {
+                    isComment = false;
                     i = i + 2;
-                } else if (blocks.isEmpty()) {
+                } else if ( !isComment ) {
 
-                    if (line.lastIndexOf("/*") != -1) { // if there is a last index occurence of /* we replace everything from /* to */ with ""
+                    if (line.lastIndexOf("/*") != -1) { // if there is a last index occurrence of /* we replace everything from /* to */ with ""
                         line = line.replaceAll("/\\*.*?\\*/", "");
                     } else {
                         line = line.substring(i); // /* is on some previous line, so just eat the line
                     }
                     findTokens(line, special_symbol);
-                    findTokens(line, keyword);
-                    findTokens(line, ID);
-                    findTokens(line, NUM);
+                    //findTokens(line, keyword);
+                    //findTokens(line, ID);
+                    //findTokens(line, NUM);
                     break;
                 } //else if
 
@@ -107,16 +107,7 @@ public class Lexer {
         int i = 0;
         while (m.find()) {
             String theGroup = m.group();
-            if (regex == "(\\/\\*)|(\\*\\/)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(<=)|(>=)|(\\>)|(==)|(!=)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)") {
-                System.out.format("%s\n", theGroup);
-            } else if (regex == "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+") {
-                System.out.format("KEYWORD:\n", theGroup);
-            } else if (regex == "[a-zA-Z]+") {
-                System.out.format("ID:\n", theGroup);
-            } else if (regex == "[\\d]+") {
-                System.out.format("NUM:\n", theGroup);
-            }
-
+            System.out.println(theGroup);
         }
     }
 }
