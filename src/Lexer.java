@@ -15,51 +15,39 @@ public class Lexer {
         Scanner scanner = new Scanner(new File(args[0]));
         String[] lines = createListOfTokens(scanner);
 
-        boolean isComment = false;
+        boolean comment_mode = false;
 
-        String special_symbol = "(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(<=)|(>=)|(\\>)|(==)|(!=)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
+        String complete_block_comment = "(\\/\\*).*(\\*\\/)|(\\/\\*).*";
+        String incomplete_block_comment = "(\\/\\*).*";
+        String closing_block_comment = "^(.*?)(\\*\\/)";
+        String line_comment = "(\\/\\/).*";
+
+        String special_symbol = "(==)|(!=)|(<=)|(>=)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(\\>)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
         String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
-        String ID = "[a-zA-Z]+";
-        String NUM = "[\\d]+";
+        String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
+        String number = "[\\d]+";
 
         for (String line : lines) {
-
             System.out.println("INPUT: " + line);
 
-            if (isLineComment(line)) { // is this in the right loop?
-                line = getStringBeforeLineComment(line); // filter out what is after the line comments
-                //continue; (is this line even necessary?)
+            if ( line.contains("//") ) {
+                line = line.replaceAll(line_comment, "");
             }
-            if (line.length() < 3) {
-                findTokens(line, special_symbol);
-                findTokens(line, keyword);
-                findTokens(line, ID);
-                findTokens(line, NUM);
+            if ( comment_mode && line.contains("*/") && !line.contains("/*") ) {
+                line = line.replaceAll(closing_block_comment, "");
+                comment_mode = false;
+            } else if ( line.contains("/*") && line.contains("*/") ) {
+                line = line.replaceAll(complete_block_comment, "");
+                comment_mode = false;
+            } else if ( line.contains("/*") ) {
+                line = line.replaceAll(incomplete_block_comment, "");
+                comment_mode = true;
             }
 
-            for (int i = 0; i < line.length() - 2; i++) {
-
-                if (line.charAt(i) == '/' && line.charAt(i+1) == '*') {
-                    isComment = true;
-                    i = i + 2;
-                } else if ( line.charAt(i) == '*' && line.charAt(i+1) == '/' && line.charAt(i+2) != '*' ) {
-                    isComment = false;
-                    i = i + 2;
-                } else if ( !isComment ) {
-
-                    if (line.lastIndexOf("/*") != -1) { // if there is a last index occurrence of /* we replace everything from /* to */ with ""
-                        line = line.replaceAll("/\\*.*?\\*/", "");
-                    } else {
-                        line = line.substring(i); // /* is on some previous line, so just eat the line
-                    }
-                    findTokens(line, special_symbol);
-                    //findTokens(line, keyword);
-                    //findTokens(line, ID);
-                    //findTokens(line, NUM);
-                    break;
-                } //else if
-
-            }//for
+            findTokens(line, special_symbol);
+            findTokens(line, keyword);
+            findTokens(line, identifier);
+            //findTokens(line, NUM);
         }//foreach
 
     }//main
@@ -83,31 +71,25 @@ public class Lexer {
         return str;
     }
 
-
-    public static boolean isLineComment(String str) {
-        if (str.isEmpty()) return false;
-        for (int i = 0; i < str.length() - 1; i++)
-            if (str.charAt(i) == '/' && str.charAt(i + 1) == '/') return true;
-        return false;
-    }
-
-    public static String getStringBeforeLineComment(String str) {
-
-        if (str.isEmpty()) return "";
-        for (int i = 0; i < str.length() - 1; i++)
-            if (str.charAt(i) == '/' && str.charAt(i + 1) == '/') {
-                return str.substring(0, i);
-            }
-        return "";
-    }
-
     public static void findTokens(String str, String regex) {
+
+        String special_symbol = "(==)|(!=)|(<=)|(>=)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(\\>)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
+        String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
+        String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
+        String number = "[\\d]+";
+
         Pattern pattern = Pattern.compile(regex);
-        Matcher m = pattern.matcher(str);
-        int i = 0;
-        while (m.find()) {
-            String theGroup = m.group();
-            System.out.println(theGroup);
+        Matcher matcher = pattern.matcher(str);
+
+        if (regex.equals(keyword) ) {
+            while ( matcher.find() ) { System.out.println("Keyword: " + matcher.group()); }
+        } else if ( regex.equals(identifier) ) {
+            while ( matcher.find() ) { System.out.println("ID: " + matcher.group()); }
+        } else if ( regex.equals(number) ) {
+            while ( matcher.find() ) { System.out.println("NUM: " + matcher.group()); }
+        }
+        while ( matcher.find() ) {
+            System.out.println(matcher.group());
         }
     }
 }
