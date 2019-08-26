@@ -30,9 +30,8 @@ public class Lexer {
         for (String line : lines) {
             System.out.println("INPUT: " + line);
 
-            if ( line.contains("//") ) {
-                line = line.replaceAll(line_comment, "");
-            }
+            line = line.replaceAll(line_comment, "");
+
             if ( comment_mode && line.contains("*/") && !line.contains("/*") ) {
                 line = line.replaceAll(closing_block_comment, "");
                 comment_mode = false;
@@ -44,10 +43,7 @@ public class Lexer {
                 comment_mode = true;
             }
 
-            findTokens(line, special_symbol);
-            findTokens(line, keyword);
-            findTokens(line, identifier);
-            //findTokens(line, NUM);
+            findTokens(line);
         }//foreach
 
     }//main
@@ -71,25 +67,34 @@ public class Lexer {
         return str;
     }
 
-    public static void findTokens(String str, String regex) {
+    public static void findTokens(String str) {
 
         String special_symbol = "(==)|(!=)|(<=)|(>=)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(\\>)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
-        String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
-        String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
+        /*String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
+        String identifier = "\b(?:else|if|int|return|void|while|main)\b";
+       // String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
         String number = "[\\d]+";
+        //String number = "\\b[\\d]+\\b";
+*/
 
+        String keyword = "\\b(?:else|if|int|return|void|while|for|package|import|public|protected|private|static|class|throws)\\b";
+        String identifier = "\\b[a-zA-Z][a-zA-Z0-9]*\\b";
+        String number = "-?\\b[\\d]+\\b";
+        String regex = "(" + keyword + ")|(" + identifier + ")|(" + number + ")|(" + special_symbol + ")";
+        //String regex = "(" + keyword + ")|(" + identifier + ")|(" + number + ")|(" + special_symbol + ")";
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(str);
+        //Matcher matcher = pattern.matcher(str);
 
-        if (regex.equals(keyword) ) {
-            while ( matcher.find() ) { System.out.println("Keyword: " + matcher.group()); }
-        } else if ( regex.equals(identifier) ) {
-            while ( matcher.find() ) { System.out.println("ID: " + matcher.group()); }
-        } else if ( regex.equals(number) ) {
-            while ( matcher.find() ) { System.out.println("NUM: " + matcher.group()); }
-        }
-        while ( matcher.find() ) {
-            System.out.println(matcher.group());
-        }
+        for( Matcher matcher = pattern.matcher(str); matcher.find(); ) {
+            if ( matcher.start(1) != -1 ) {
+                System.out.println("Keyword: " + matcher.group() );
+            } else if ( matcher.start(2) != -1 ) {
+                System.out.println("ID: " + matcher.group() );
+            } else if ( matcher.start(3) != -1 ) {
+                System.out.println("NUM: " + matcher.group());
+            } else if ( matcher.start(4) != -1 ) {
+                System.out.println(matcher.group());
+            }
+        } // for
     }
 }
