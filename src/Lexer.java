@@ -22,11 +22,6 @@ public class Lexer {
         String closing_block_comment = "^(.*?)(\\*\\/)";
         String line_comment = "(\\/\\/).*";
 
-        String special_symbol = "(==)|(!=)|(<=)|(>=)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(\\>)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
-        String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
-        String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
-        String number = "[\\d]+";
-
         for (String line : lines) {
             System.out.println("INPUT: " + line);
 
@@ -45,7 +40,6 @@ public class Lexer {
 
             findTokens(line);
         }//foreach
-
     }//main
 
 
@@ -69,21 +63,14 @@ public class Lexer {
 
     public static void findTokens(String str) {
 
-        String special_symbol = "(==)|(!=)|(<=)|(>=)|(\\+)|(\\-)|(\\*)|(\\/)|(\\<)|(\\>)|(\\=)|(\\;)|(\\,)|(\\()|(\\))|(\\[)|(\\])|(\\{)|(\\})|(\\,)";
-        /*String keyword = "(else)+|(if)+|(int)+|(return)+|(void)+|(while)+|(main)+";
-        String identifier = "\b(?:else|if|int|return|void|while|main)\b";
-       // String identifier = "\\b(?!(else)|(if)|(int)|(return)|(void)|(while)|(main))\\b[a-zA-Z]+";
-        String number = "[\\d]+";
-        //String number = "\\b[\\d]+\\b";
-*/
+        String keyword = "\\b(?:else|if|int|return|void|while)\\b";
+        String identifier = "\\b[a-zA-Z]+\\b";
+        String number = "\\b[\\d]+\\b";
+        String special_symbol = "==|!=|<=|>=|[+\\-*/<>=;,()\\[\\]{}]";
+        String error = "\\S+";
+        String regex = "(" + keyword + ")|(" + identifier + ")|(" + number + ")|(" + special_symbol + ")|(" + error + ")";
 
-        String keyword = "\\b(?:else|if|int|return|void|while|for|package|import|public|protected|private|static|class|throws)\\b";
-        String identifier = "\\b[a-zA-Z][a-zA-Z0-9]*\\b";
-        String number = "-?\\b[\\d]+\\b";
-        String regex = "(" + keyword + ")|(" + identifier + ")|(" + number + ")|(" + special_symbol + ")";
-        //String regex = "(" + keyword + ")|(" + identifier + ")|(" + number + ")|(" + special_symbol + ")";
         Pattern pattern = Pattern.compile(regex);
-        //Matcher matcher = pattern.matcher(str);
 
         for( Matcher matcher = pattern.matcher(str); matcher.find(); ) {
             if ( matcher.start(1) != -1 ) {
@@ -93,7 +80,9 @@ public class Lexer {
             } else if ( matcher.start(3) != -1 ) {
                 System.out.println("NUM: " + matcher.group());
             } else if ( matcher.start(4) != -1 ) {
-                System.out.println(matcher.group());
+                System.out.println( matcher.group() );
+            } else if ( matcher.start(5) != -1 ) {
+                System.out.println("ERROR: " + matcher.group() );
             }
         } // for
     }

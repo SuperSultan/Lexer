@@ -5,13 +5,15 @@
 i = 333;        ******************/       */
 
 iiii = 3@33;
-if(xx<=25);
+sdfasdf HELLO int
+if(xx<=-25);
 !=
-int g 4 cd (int u, int v)      {
+int g*/ 4 cd (int u, int v)      {
 if(v == >= 0) return/*a c;=<=omment*/ u;
 else ret_urn gcd(vxxxxxxvvvvv, u-u/v*v);
        /* u-u/v*v == u mod v*/
 !
+89247598 gsajdbgkY (&Y*&#$6
 }
 */
 return void while       void main()
