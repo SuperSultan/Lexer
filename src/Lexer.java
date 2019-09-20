@@ -5,9 +5,39 @@
 import java.io.File;
 import java.io.IOException;
 import java.lang.String;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
+
+class Token {
+
+    private String lexeme;
+    private String category;
+    private String token;
+    private int scope;
+    private boolean validity;
+    private static Map<String, String> tokens =  new LinkedHashMap<String, String>();
+
+    Token (String category, String lexeme) {
+        this.category = category; // KEYWORD, ID, NUM, ERROR, SPECIAL_SYMBOL, ERROR
+        this.lexeme = lexeme; // the actual token itself
+        tokens.put(lexeme, category);
+        //System.out.println(category);
+    }
+
+    public static void printTokens() {
+        for(Map.Entry<String, String> entry: tokens.entrySet() ) {
+            System.out.println(entry.getKey() + " = " + entry.getValue() + " ");
+        }
+    }
+
+    public Map<String, String> getTokenList() {
+        return tokens;
+    }
+
+} // class Token
 
 public class Lexer {
 
@@ -20,10 +50,13 @@ public class Lexer {
             System.exit(0);
         }
 
+        //List<String> tokens = new ArrayList<String>();
+
         System.out.println("SAMPLE INPUT: ");
         while ( printer.hasNext() ) { System.out.println(printer.nextLine()); } // print source code
 
         boolean comment_mode = false;
+
         String complete_block_comment = "(\\/\\*).*(\\*\\/)|(\\/\\*).*";
         String incomplete_block_comment = "(\\/\\*).*";
         String closing_block_comment = "^(.*?)(\\*\\/)";
@@ -47,6 +80,11 @@ public class Lexer {
             }
             findTokens(line); // powered by regex
         }
+
+        System.out.println();
+        System.out.println("The tokens: ");
+        Token.printTokens();
+
     }//main
 
     public static void findTokens(String str) {
@@ -62,16 +100,22 @@ public class Lexer {
 
         for( Matcher matcher = pattern.matcher(str); matcher.find(); ) { // Attempt to match each capture group against the regex
             if ( matcher.start(1) != -1 ) {
-                System.out.println("Keyword: " + matcher.group() );
+                System.out.println("keyword: " + matcher.group() );
+                new Token("KEYWORD", matcher.group() );
             } else if ( matcher.start(2) != -1 ) {
-                System.out.println("ID: " + matcher.group() );
+                System.out.println("identifier: " + matcher.group() );
+                new Token ("ID", matcher.group() );
             } else if ( matcher.start(3) != -1 ) {
-                System.out.println("NUM: " + matcher.group());
+                System.out.println("number: " + matcher.group());
+                new Token("NUM", matcher.group() );
             } else if ( matcher.start(4) != -1 ) {
                 System.out.println( matcher.group() );
+                new Token("SPECIAL", matcher.group() );
             } else if ( matcher.start(5) != -1 ) {
-                System.out.println("ERROR: " + matcher.group() );
+                System.out.println("error: " + matcher.group() );
+                new Token("ERROR", matcher.group());
             }
         }
+
     }
 } // class Lexer
