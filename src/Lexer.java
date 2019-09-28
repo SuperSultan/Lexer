@@ -1,6 +1,7 @@
 /* Afnan Sultan (N01154597)
    COP4991 - Dr. Roger Eggen
    Lexical Analyzer (p1): Generates sequence of tokens for the Parser
+   Date Last Modified: 9/4/19
  */
 import java.io.File;
 import java.io.IOException;
